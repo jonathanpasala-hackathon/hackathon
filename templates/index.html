@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Personal Assistant</h1>
+            <p>Your AI-powered helper for questions, reservations, trips, and emails</p>
+        </header>
+
+        <div class="agent-info">
+            <h2>Available Services</h2>
+            <div class="agent-grid">
+                {% for agent_id, description in agents.items() %}
+                <div class="agent-card">
+                    <h3>{{ agent_id.replace('_', ' ').title() }}</h3>
+                    <p>{{ description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <div class="message assistant-message">
+                    <strong>Assistant:</strong> Hello! How can I help you today?
+                </div>
+            </div>
+
+            <div class="input-container">
+                <form id="chat-form">
+                    <input 
+                        type="text" 
+                        id="user-input" 
+                        placeholder="Ask me anything, book a trip, make a reservation, or summarize emails..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" id="send-btn">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
