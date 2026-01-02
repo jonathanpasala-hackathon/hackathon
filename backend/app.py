@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from controllers.assistant_controller import AssistantController
 from config.config import Config
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)
+CORS(app)
 
 # Initialize controller
 assistant = AssistantController()
