@@ -1,5 +1,5 @@
 from agents.qa_agent import QAAgent
-from agents.reservation_agent import ReservationAgent
+from agents.reservation_agent import EnhancedReservationAgent
 from agents.trip_booking_agent import TripBookingAgent
 from agents.email_summarizer_agent import EmailSummarizerAgent
 from models.groq_llm import GroqLLM
@@ -12,7 +12,7 @@ class AgentRouter:
     def __init__(self):
         self.agents = {
             "qa": QAAgent(),
-            "reservation": ReservationAgent(),
+            "reservation": EnhancedReservationAgent(),
             "trip_booking": TripBookingAgent(),
             "email_summarizer": EmailSummarizerAgent()
         }
@@ -22,14 +22,22 @@ class AgentRouter:
         """Classify user intent to route to appropriate agent"""
         
         classification_prompt = f"""Classify the following user request into one of these categories:
+
+- reservation: Booking a SINGLE item (one hotel, one restaurant, or one flight)
+  Examples: "book a hotel", "reserve a restaurant", "book a flight", "I need a hotel in NYC"
+  
+- trip_booking: Booking a COMPLETE TRIP with multiple items (flight + hotel + restaurant)
+  Examples: "plan a trip to Paris", "book my vacation to Hawaii", "I need everything for my trip"
+  
+- email_summarizer: Email-related tasks
+  Examples: "summarize my emails", "categorize my inbox"
+  
 - qa: General questions and answers
-- reservation: Making, checking, or canceling a single reservation (restaurant, etc.)
-- trip_booking: Booking complete trips with flights, hotels, and restaurants
-- email_summarizer: Summarizing, categorizing, or managing emails
+  Examples: "what is the weather", "how does photosynthesis work", "tell me about AI"
 
 User request: {user_input}
 
-Respond with only the category name (qa, reservation, trip_booking, or email_summarizer).
+Respond with ONLY the category name: reservation, trip_booking, email_summarizer, or qa
 """
         
         try:
@@ -37,7 +45,10 @@ Respond with only the category name (qa, reservation, trip_booking, or email_sum
             
             # Validate the intent
             if intent not in self.agents:
-                # Default to QA if classification is unclear
+                # Default to reservation for booking-related queries
+                if any(word in user_input.lower() for word in ['hotel', 'flight', 'restaurant', 'book', 'reserve', 'reservation']):
+                    return "reservation"
+                # Default to QA for everything else
                 return "qa"
             
             return intent
@@ -45,17 +56,38 @@ Respond with only the category name (qa, reservation, trip_booking, or email_sum
             print(f"Error classifying intent: {e}")
             return "qa"  # Default to QA agent
     
-    def route(self, user_input: str) -> Dict[str, Any]:
+    def route(self, user_input: str, current_agent: str = None) -> Dict[str, Any]: # type: ignore
         """Route user input to appropriate agent and return response"""
         
-        # Classify the intent
+        # If we have a current agent in conversation, stick with it unless user explicitly switches
+        if current_agent:
+            # Check if user is trying to switch topics
+            switch_keywords = ["new", "different", "instead", "switch", "change topic"]
+            is_switching = any(keyword in user_input.lower() for keyword in switch_keywords)
+            
+            if not is_switching:
+                # Continue with same agent
+                print(f"[Router] Continuing with: {current_agent}")
+                agent = self.agents.get(current_agent)
+                result = agent.execute({"input": user_input}) # type: ignore
+                
+                return {
+                    "agent": current_agent,
+                    "success": result["success"],
+                    "response": result["output"],
+                    "error": result["error"]
+                }
+        
+        # Classify the intent for new conversations
         intent = self._classify_intent(user_input)
+        print(f"[Router] Classified intent as: {intent}")
         
         # Get the appropriate agent
         agent = self.agents.get(intent)
+        print(f"[Router] Using agent: {agent.__class__.__name__}")
         
         # Execute the agent
-        result = agent.execute({"input": user_input})  # type: ignore
+        result = agent.execute({"input": user_input}) # type: ignore
         
         return {
             "agent": intent,
