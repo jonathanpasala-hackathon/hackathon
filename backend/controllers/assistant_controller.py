@@ -78,8 +78,7 @@ class AssistantController:
     def get_agent_info(self) -> Dict[str, str]:
         """Get information about available agents"""
         return {
-            "qa": "Question and Answer - Ask me anything!",
-            "reservation": "Enhanced Reservation Assistant - Book hotels, restaurants, and flights with guided step-by-step assistance",
-            "trip_booking": "Trip Booking - Book complete trips with flights, hotels, and restaurant reservations",
-            "email_summarizer": "Email Summarizer - Summarize and manage your emails"
+            "qa": "Travel Q&A - Ask about destinations, weather, travel tips, and recommendations!",
+            "reservation": "Individual Reservations - Book hotels, restaurants, or flights one at a time",
+            "trip_booking": "Complete Trip Planning - Book entire trips with flights, hotels, and dining"
         }

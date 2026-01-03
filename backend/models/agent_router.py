@@ -1,7 +1,6 @@
 from agents.qa_agent import QAAgent
 from agents.reservation_agent import EnhancedReservationAgent
 from agents.trip_booking_agent import TripBookingAgent
-from agents.email_summarizer_agent import EmailSummarizerAgent
 from models.groq_llm import GroqLLM
 from typing import Dict, Any
 
@@ -13,8 +12,7 @@ class AgentRouter:
         self.agents = {
             "qa": QAAgent(),
             "reservation": EnhancedReservationAgent(),
-            "trip_booking": TripBookingAgent(),
-            "email_summarizer": EmailSummarizerAgent()
+            "trip_booking": TripBookingAgent()
         }
         self.llm = GroqLLM()
     
@@ -26,17 +24,15 @@ class AgentRouter:
 - reservation: Booking a SINGLE item (one hotel, one restaurant, or one flight)
   Examples: "book a hotel", "reserve a restaurant", "book a flight", "I need a hotel in NYC"
   
-- trip_booking: Do not route to this
+- trip_booking: Booking a COMPLETE TRIP with multiple items (flight + hotel + restaurant)
+  Examples: "plan a trip to Paris", "book my vacation to Hawaii", "I need everything for my trip"
   
-- email_summarizer: Email-related tasks
-  Examples: "summarize my emails", "categorize my inbox"
-  
-- qa: General questions and answers
-  Examples: "what is the weather", "how does photosynthesis work", "tell me about AI"
+- qa: General questions, travel information, recommendations
+  Examples: "what's the weather in Paris", "tell me about Tokyo", "best time to visit Italy", "travel tips"
 
 User request: {user_input}
 
-Respond with ONLY the category name: reservation, trip_booking, email_summarizer, or qa
+Respond with ONLY the category name: reservation, trip_booking, or qa
 """
         
         try:
