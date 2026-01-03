@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Chat from "./components/Chat";
+import { processMessage } from "./services/api";
 
 function App() {
   const [input, setInput] = useState("");
@@ -25,15 +27,7 @@ function App() {
     setStatusType("loading");
 
     try {
-      const res = await fetch("/api/process", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input })
-      });
-
-      if (!res.ok) throw new Error("Network error");
-
-      const data = await res.json();
+      const data = await processMessage(input);
 
       if (data.success) {
         addMessage(data.response, "assistant", data.agent);
@@ -57,47 +51,20 @@ function App() {
       setStatusType("error");
     } finally {
       setLoading(false);
-      setTimeout(() => setStatus(""), 3000);
+      setTimeout(() => setStatus(""), 10000);
     }
   };
 
   return (
-    <div className="chat-app">
-      <h1>Chat Assistant</h1>
-
-      <div id="chat-messages" className="messages">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`message ${msg.sender}-message`}
-          >
-            <strong>
-              {msg.sender === "user" ? "You" : "Assistant"}
-              {msg.agent ? ` (${msg.agent.replace("_", " ")})` : ""}:
-            </strong>{" "}
-            {msg.text}
-          </div>
-        ))}
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          disabled={loading}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Sending..." : "Send"}
-        </button>
-      </form>
-
-      {status && (
-        <div className={`status show ${statusType}`}>
-          {status}
-        </div>
-      )}
-    </div>
+    <Chat
+      messages={messages}
+      input={input}
+      setInput={setInput}
+      onSubmit={handleSubmit}
+      loading={loading}
+      status={status}
+      statusType={statusType}
+    />
   );
 }
 
