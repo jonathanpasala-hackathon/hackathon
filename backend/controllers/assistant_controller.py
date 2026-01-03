@@ -80,5 +80,6 @@ class AssistantController:
         return {
             "qa": "Travel Q&A - Ask about destinations, weather, travel tips, and recommendations!",
             "reservation": "Individual Reservations - Book hotels, restaurants, or flights one at a time",
-            "trip_booking": "Complete Trip Planning - Book entire trips with flights, hotels, and dining"
+            "trip_booking": "Complete Trip Planning - Book entire trips with flights, hotels, and dining",
+            "fallback": "Miscellaneous Requests"
         }

@@ -1,6 +1,7 @@
 from agents.qa_agent import QAAgent
 from agents.reservation_agent import EnhancedReservationAgent
 from agents.trip_booking_agent import TripBookingAgent
+from agents.fallback_agent import FallbackAgent
 from models.groq_llm import GroqLLM
 from typing import Dict, Any
 
@@ -12,7 +13,8 @@ class AgentRouter:
         self.agents = {
             "qa": QAAgent(),
             "reservation": EnhancedReservationAgent(),
-            "trip_booking": TripBookingAgent()
+            "trip_booking": TripBookingAgent(),
+            "fallback": FallbackAgent()
         }
         self.llm = GroqLLM()
     
@@ -29,6 +31,9 @@ class AgentRouter:
   
 - qa: General questions, travel information, recommendations
   Examples: "what's the weather in Paris", "tell me about Tokyo", "best time to visit Italy", "travel tips"
+
+- fallback: If the user request does not fall into any categories previously mentioned, trigger the fallback category.
+  Examples: "how are you?"
 
 User request: {user_input}
 
