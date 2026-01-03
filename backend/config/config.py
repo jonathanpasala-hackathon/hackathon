@@ -17,5 +17,5 @@ class Config:
     DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
     
     # Agent Configuration
-    MAX_ITERATIONS = 5
+    MAX_ITERATIONS = 90
     AGENT_TIMEOUT = 180  # seconds

@@ -7,11 +7,55 @@ class ChatApp {
         this.messagesContainer = document.getElementById('chat-messages');
         this.status = document.getElementById('status');
         
+        // Generate or retrieve session ID
+        this.sessionId = this.getOrCreateSessionId();
+        
         this.init();
+    }
+    
+    getOrCreateSessionId() {
+        // Check if we have a session ID in sessionStorage
+        let sessionId = sessionStorage.getItem('chatSessionId');
+        if (!sessionId) {
+            // Create a new session ID
+            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            sessionStorage.setItem('chatSessionId', sessionId);
+        }
+        return sessionId;
     }
     
     init() {
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        
+        // Add clear conversation button functionality if it exists
+        const clearBtn = document.getElementById('clear-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearConversation());
+        }
+    }
+    
+    async clearConversation() {
+        try {
+            await fetch('/api/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ session_id: this.sessionId })
+            });
+            
+            // Clear the UI
+            this.messagesContainer.innerHTML = `
+                <div class="message assistant-message">
+                    <strong>Assistant:</strong> Hello! How can I help you today?
+                </div>
+            `;
+            
+            this.showStatus('Conversation cleared', 'success');
+            setTimeout(() => this.hideStatus(), 2000);
+        } catch (error) {
+            console.error('Error clearing conversation:', error);
+        }
     }
     
     async handleSubmit(e) {
@@ -33,13 +77,16 @@ class ChatApp {
         this.showStatus('Processing your request...', 'loading');
         
         try {
-            // Send request to API
+            // Send request to API with session ID
             const response = await fetch('/api/process', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ input: userInput })
+                body: JSON.stringify({ 
+                    input: userInput,
+                    session_id: this.sessionId
+                })
             });
             
             if (!response.ok) {
