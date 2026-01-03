@@ -1,7 +1,7 @@
 import MessageList from "./Messages";
 import ChatInput from "./ChatInput";
 import StatusBar from "./StatusBar";
-
+import "./ChatStyle.css";
 import { useState } from "react";
 import { processMessage } from "../services/api";
 

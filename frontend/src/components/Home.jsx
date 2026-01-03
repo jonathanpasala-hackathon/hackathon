@@ -25,10 +25,9 @@ export default function Home(props) {
 
 function LeftPanel() {
     return (
-        <span className="left-panel">
-            <p>This is the left panel</p>
+        <div className="left-panel">
             <Chat />
-        </span>
+        </div>
     );
 }
 
