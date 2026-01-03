@@ -3,17 +3,25 @@
   height: 100vh;
 }
 
+/* Container holding left + right panels */
 .home-page {
   display: flex;
   flex: 1;
+  height: 100%;              /* ensure children can stretch */
 }
 
+/* Left chat panel */
 .left-panel {
   flex: 3;
-  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;             /* IMPORTANT for scrolling */
+  border-right: 1px solid black;
 }
 
+/* Right panel */
 .right-panel {
   flex: 2;
-  border: 1px solid black;
+  min-height: 0;             /* prevents overflow issues */
+  border-left: 1px solid black;
 }
