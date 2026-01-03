@@ -1,0 +1,19 @@
+.app-row {
+  display: flex;
+  height: 100vh;
+}
+
+.home-page {
+  display: flex;
+  flex: 1;
+}
+
+.left-panel {
+  flex: 3;
+  border: 1px solid black;
+}
+
+.right-panel {
+  flex: 2;
+  border: 1px solid black;
+}
