@@ -32,10 +32,27 @@ class TripBookingAgent(BaseAgent):
                 items = []
                 details_lower = details.lower()
                 
-                if any(word in details_lower for word in ['flight', 'fly', 'plane']):
+                # Check for explicit mentions
+                has_flight = any(word in details_lower for word in ['flight', 'fly', 'plane', 'air'])
+                has_hotel = any(word in details_lower for word in ['hotel', 'stay', 'accommodation', 'room'])
+                has_restaurant = any(word in details_lower for word in ['restaurant', 'dining', 'dinner', 'lunch', 'eat'])
+                
+                # Implicit trip planning - if they say "trip" or "vacation" without specifics, assume flight + hotel
+                is_general_trip = any(word in details_lower for word in ['trip', 'vacation', 'visit', 'travel to', 'going to', 'plan'])
+                has_duration = any(word in details_lower for word in ['day', 'days', 'week', 'weeks', 'night', 'nights'])
+                has_destination = not has_flight and not has_hotel and not has_restaurant  # They mentioned a destination but no specific bookings
+                
+                # If it's a general trip request with duration, assume they need flight + hotel
+                if is_general_trip and (has_duration or has_destination) and not has_flight and not has_hotel:
+                    has_flight = True
+                    has_hotel = True
+                
+                # Add flight if needed
+                if has_flight:
                     items.append({"type": "flight", "status": "pending"})
                 
-                if any(word in details_lower for word in ['hotel', 'stay', 'accommodation', 'room']):
+                # Add hotel if needed
+                if has_hotel:
                     items.append({"type": "hotel", "status": "pending"})
                 
                 # Check for restaurant mentions or if it's a multi-day trip
@@ -50,8 +67,17 @@ class TripBookingAgent(BaseAgent):
                     count = int(numbers[0]) if numbers else 2
                     for i in range(count):
                         items.append({"type": "restaurant", "number": i+1, "status": "pending"})
-                elif any(word in details_lower for word in restaurant_keywords):
+                elif has_restaurant:
                     items.append({"type": "restaurant", "status": "pending"})
+                
+                # If still no items detected but they're clearly planning a trip, ask for clarification
+                if not items and is_general_trip:
+                    return json.dumps({
+                        "total_items": 0,
+                        "items": [],
+                        "message": "Need clarification: What would you like to book for this trip? (flight, hotel, restaurant, or all?)",
+                        "needs_clarification": True
+                    }, indent=2)
                 
                 self.trip_state["pending_items"] = items
                 
@@ -232,6 +258,8 @@ Your job is to coordinate multiple bookings in sequence, collecting all necessar
 WORKFLOW:
 1. User describes their trip needs
 2. Use PlanTrip to analyze what needs to be booked
+   - If PlanTrip returns "needs_clarification": true, ask user what they want to book
+   - Otherwise, proceed to step 3
 3. Use BookNextItem to start the first reservation
 4. Ask the user the questions indicated for that reservation type
 5. Use CollectReservationInfo to store each response
@@ -246,6 +274,8 @@ IMPORTANT RULES:
 - Don't move to next reservation until current one is complete
 - Keep track of what's been booked and what's pending
 - After each reservation completes, tell user what's next
+- If PlanTrip finds 0 items but needs_clarification is true, ask user for details
+- NEVER use "Action: None" - always use a valid tool or Final Answer
 
 RESERVATION REQUIREMENTS:
 
@@ -272,7 +302,7 @@ RESTAURANT:
 - Time
 - Name on reservation
 
-EXAMPLE FLOW:
+EXAMPLE FLOW 1 (Specific request):
 
 User: "I need to book a trip to Paris - flight and hotel"
 
@@ -288,7 +318,20 @@ Observation: {{"reservation_type": "flight", "message": "Let's book your flight.
 Thought: Need to ask about tickets.
 Final Answer: Let's start by booking your flight to Paris! How many tickets do you need?
 
-[User provides info, you collect it, complete that reservation, then move to hotel, etc.]
+EXAMPLE FLOW 2 (Needs clarification):
+
+User: "I want to plan a trip to NYC for 3 days"
+
+Thought: User wants to plan a trip. Let me analyze what's needed.
+Action: PlanTrip
+Action Input: I want to plan a trip to NYC for 3 days
+Observation: {{"total_items": 2, "items": [{{"type": "flight"}}, {{"type": "hotel"}}], "message": "Trip plan created: 2 reservation(s) needed"}}
+
+Thought: Plan created with flight and hotel. Start with first item.
+Action: BookNextItem
+Observation: {{"reservation_type": "flight", "message": "Let's book your flight. How many tickets do you need?"}}
+
+Final Answer: Great! I'll help you plan your 3-day trip to NYC. Let's start by booking your flight. How many tickets do you need?
 
 You have access to these tools:
 {tools}
