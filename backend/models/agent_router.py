@@ -26,8 +26,7 @@ class AgentRouter:
 - reservation: Booking a SINGLE item (one hotel, one restaurant, or one flight)
   Examples: "book a hotel", "reserve a restaurant", "book a flight", "I need a hotel in NYC"
   
-- trip_booking: Booking a COMPLETE TRIP with multiple items (flight + hotel + restaurant)
-  Examples: "plan a trip to Paris", "book my vacation to Hawaii", "I need everything for my trip"
+- trip_booking: Do not route to this
   
 - email_summarizer: Email-related tasks
   Examples: "summarize my emails", "categorize my inbox"
