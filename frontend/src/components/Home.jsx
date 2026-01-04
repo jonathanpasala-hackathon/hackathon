@@ -25,8 +25,7 @@ export default function Home() {
 
     return (
         <div className="app-row">
-            <Menu open={open} openMenu={openMenu} />
-            {!open && (
+            <Menu open={open} openMenu={openMenu} 
                 <div className="home-page">
                     <div className="left-panel"><Chat /></div>
                     <div className="right-panel">
@@ -46,7 +45,6 @@ export default function Home() {
                         )}
                     </div>
                 </div>
-            )}
         </div>
     );
 }
