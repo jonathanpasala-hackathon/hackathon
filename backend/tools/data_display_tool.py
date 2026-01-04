@@ -139,7 +139,9 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Pool", "Gym", "Restaurant", "Spa"],
             "image_url": "https://example.com/hotel1.jpg",
             "available_rooms": 5,
-            "description": "Luxury hotel in the heart of downtown"
+            "description": "Luxury hotel in the heart of downtown",
+            "logitude": 41.7589,
+            "latitude": -73.9851
         },
         {
             "id": "hotel_2",
@@ -152,7 +154,9 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Parking", "Breakfast", "Gym"],
             "image_url": "https://example.com/hotel2.jpg",
             "available_rooms": 12,
-            "description": "Comfortable and affordable accommodations"
+            "description": "Comfortable and affordable accommodations",
+            "logitude": 42.7589,
+            "latitude": -73.9851
         },
         {
             "id": "hotel_3",
@@ -165,7 +169,9 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Pool", "Spa", "Casino", "Beach Access", "Fine Dining"],
             "image_url": "https://example.com/hotel3.jpg",
             "available_rooms": 3,
-            "description": "5-star resort with world-class amenities"
+            "description": "5-star resort with world-class amenities",
+            "logitude": 43.7589,
+            "latitude": -73.9851
         },
         {
             "id": "hotel_4",
@@ -178,7 +184,9 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Parking"],
             "image_url": "https://example.com/hotel4.jpg",
             "available_rooms": 20,
-            "description": "Clean and simple budget accommodations"
+            "description": "Clean and simple budget accommodations",
+            "logitude": 44.7589,
+            "latitude": -73.9851
         },
         {
             "id": "hotel_5",
@@ -191,7 +199,9 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Business Center", "Meeting Rooms", "Gym"],
             "image_url": "https://example.com/hotel5.jpg",
             "available_rooms": 8,
-            "description": "Perfect for business travelers"
+            "description": "Perfect for business travelers",
+            "logitude": 45.7589,
+            "latitude": -73.9851
         }
     ]
     
@@ -222,13 +232,14 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "city": city,
             "address": "100 Pasta Lane",
             "cuisine": "Italian",
-            "price_range": 2,  # 1=$ 2=$$ 3=$$$ 4=$$$$
+            "price_range": 2,
             "rating": 4.7,
             "phone": "(555) 123-4567",
             "image_url": "https://example.com/restaurant1.jpg",
             "available_times": ["5:30 PM", "7:00 PM", "8:30 PM"],
             "specialties": ["Handmade Pasta", "Wood-fired Pizza", "Tiramisu"],
-            "coordinates": [40.7589, -73.9851]
+            "logitude": 40.7589,
+            "latitude": -73.9851
         },
         {
             "id": "rest_2",
@@ -242,7 +253,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant2.jpg",
             "available_times": ["6:00 PM", "7:30 PM", "9:00 PM"],
             "specialties": ["Omakase", "Sashimi", "Sake Selection"],
-            "coordinates": [40.7614, -73.9776]
+            "logitude": 40.7589,
+            "latitude": -74.9851
         },
         {
             "id": "rest_3",
@@ -256,7 +268,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant3.jpg",
             "available_times": ["5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"],
             "specialties": ["Signature Burger", "Craft Beer", "Milkshakes"],
-            "coordinates": [40.7580, -73.9855]
+            "logitude": 40.7589,
+            "latitude": -75.9851
         },
         {
             "id": "rest_4",
@@ -270,7 +283,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant4.jpg",
             "available_times": ["7:00 PM", "8:30 PM"],
             "specialties": ["Coq au Vin", "Crème Brûlée", "Wine Pairing"],
-            "coordinates": [40.7505, -73.9934]
+            "logitude": 40.7589,
+            "latitude": -76.9851
         },
         {
             "id": "rest_5",
@@ -284,7 +298,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant5.jpg",
             "available_times": ["6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM"],
             "specialties": ["Butter Chicken", "Biryani", "Naan Bread"],
-            "coordinates": [40.7484, -73.9857]
+            "logitude": 40.7589,
+            "latitude": -77.9851
         }
     ]
     
