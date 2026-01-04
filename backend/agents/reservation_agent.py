@@ -26,21 +26,24 @@ class EnhancedReservationAgent(BaseAgent):
                         "price": "$150/night",
                         "area": criteria.get('area', 'Downtown'),
                         "rating": "4.5 stars",
-                        "amenities": ["Pool", "WiFi", "Breakfast"]
+                        "amenities": ["Pool", "WiFi", "Breakfast"],
+                        "coordinates": [41.40338, 2.17403]
                     },
                     {
                         "name": "Comfort Inn & Suites",
                         "price": "$95/night",
                         "area": criteria.get('area', 'Midtown'),
                         "rating": "4.0 stars",
-                        "amenities": ["WiFi", "Parking", "Gym"]
+                        "amenities": ["WiFi", "Parking", "Gym"],
+                        "coordinates": [41.40338, 2.17403]
                     },
                     {
                         "name": "Luxury Resort Hotel",
                         "price": "$275/night",
                         "area": criteria.get('area', 'Waterfront'),
                         "rating": "5.0 stars",
-                        "amenities": ["Spa", "Pool", "Beach Access", "Restaurant"]
+                        "amenities": ["Spa", "Pool", "Beach Access", "Restaurant"],
+                        "coordinates": [41.40338, 2.17403]
                     }
                 ]
                 return json.dumps(hotels, indent=2)
@@ -58,7 +61,8 @@ class EnhancedReservationAgent(BaseAgent):
                         "price_range": "$$",
                         "area": criteria.get('area', 'Downtown'),
                         "rating": "4.7 stars",
-                        "available_times": ["6:00 PM", "7:30 PM", "9:00 PM"]
+                        "available_times": ["6:00 PM", "7:30 PM", "9:00 PM"],
+                        "coordinates": [41.40338, 20.17403]
                     },
                     {
                         "name": "Sakura Sushi Bar",
@@ -66,7 +70,8 @@ class EnhancedReservationAgent(BaseAgent):
                         "price_range": "$$$",
                         "area": criteria.get('area', 'Midtown'),
                         "rating": "4.8 stars",
-                        "available_times": ["5:30 PM", "7:00 PM", "8:30 PM"]
+                        "available_times": ["5:30 PM", "7:00 PM", "8:30 PM"],
+                        "coordinates": [41.40338, 50.17403]
                     },
                     {
                         "name": "Burger Palace",
@@ -74,7 +79,8 @@ class EnhancedReservationAgent(BaseAgent):
                         "price_range": "$",
                         "area": criteria.get('area', 'West End'),
                         "rating": "4.2 stars",
-                        "available_times": ["6:00 PM", "7:00 PM", "8:00 PM"]
+                        "available_times": ["6:00 PM", "7:00 PM", "8:00 PM"],
+                        "coordinates": [41.40338, 75.17403]
                     }
                 ]
                 return json.dumps(restaurants, indent=2)

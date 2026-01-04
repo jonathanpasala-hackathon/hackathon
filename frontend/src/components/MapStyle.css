@@ -1,0 +1,9 @@
+.map-wrapper {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.map-wrapper:hover {
+    transform: translateY(-4px); /* lifts it up */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    border-radius: 8px; /* optional, makes shadow nicer */
+}

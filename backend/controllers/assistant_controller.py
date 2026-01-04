@@ -3,12 +3,18 @@ from typing import Dict, Any
 
 
 class AssistantController:
-    """Main controller for the personal assistant"""
+    """Main controller for the travel assistant"""
     
     def __init__(self):
-        self.router = AgentRouter()
-        # Store conversation history by session (in production, use proper session management)
+        # Store conversation history and routers by session
         self.conversations = {}
+        self.routers = {}  # Router per session to maintain session_id
+    
+    def _get_router(self, session_id: str) -> AgentRouter:
+        """Get or create router for session"""
+        if session_id not in self.routers:
+            self.routers[session_id] = AgentRouter(session_id=session_id)
+        return self.routers[session_id]
     
     def process_request(self, user_input: str, session_id: str = "default") -> Dict[str, Any]:
         """Process user request and return formatted response"""
@@ -35,8 +41,11 @@ class AssistantController:
             # Build context from conversation history
             context = self._build_context(conversation["history"], user_input)
             
+            # Get router for this session
+            router = self._get_router(session_id)
+            
             # Route with context
-            result = self.router.route(context, conversation.get("current_agent"))
+            result = router.route(context, conversation.get("current_agent"))
             
             # Update conversation history
             conversation["history"].append({
@@ -78,8 +87,8 @@ class AssistantController:
     def get_agent_info(self) -> Dict[str, str]:
         """Get information about available agents"""
         return {
-            "qa": "Question and Answer - Ask me anything!",
-            "reservation": "Enhanced Reservation Assistant - Book hotels, restaurants, and flights with guided step-by-step assistance",
-            "trip_booking": "Trip Booking - Book complete trips with flights, hotels, and restaurant reservations",
-            "email_summarizer": "Email Summarizer - Summarize and manage your emails"
+            "qa": "Travel Q&A - Ask about destinations, weather, travel tips, and recommendations!",
+            "reservation": "Individual Reservations - Book hotels, restaurants, or flights one at a time",
+            "trip_booking": "Complete Trip Planning - Book entire trips with flights, hotels, and dining",
+            "fallback": "Polite Redirect - Handles non-travel questions with friendly guidance"
         }
