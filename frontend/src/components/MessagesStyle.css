@@ -52,7 +52,7 @@
 
 /* Assistant bubble */
 .assistant-message .message-bubble {
-  background-color: black;
+  background-color: rgb(125, 156, 249);
   color: white;
   border-bottom-left-radius: 4px;
 }
