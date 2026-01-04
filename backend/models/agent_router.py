@@ -1,7 +1,7 @@
 from agents.qa_agent import QAAgent
 from agents.reservation_agent import EnhancedReservationAgent
 from agents.trip_booking_agent import TripBookingAgent
-from agents.email_summarizer_agent import EmailSummarizerAgent
+from agents.fallback_agent import FallbackAgent
 from models.groq_llm import GroqLLM
 from typing import Dict, Any
 
@@ -9,12 +9,13 @@ from typing import Dict, Any
 class AgentRouter:
     """Routes user requests to the appropriate agent"""
     
-    def __init__(self):
+    def __init__(self, session_id: str = "default"):
+        self.session_id = session_id
         self.agents = {
-            "qa": QAAgent(),
-            "reservation": EnhancedReservationAgent(),
+            "qa": QAAgent(session_id=session_id),
+            "reservation": EnhancedReservationAgent(session_id=session_id),
             "trip_booking": TripBookingAgent(),
-            "email_summarizer": EmailSummarizerAgent()
+            "fallback": FallbackAgent()
         }
         self.llm = GroqLLM()
     
@@ -23,20 +24,24 @@ class AgentRouter:
         
         classification_prompt = f"""Classify the following user request into one of these categories:
 
-- reservation: Booking a SINGLE item (one hotel, one restaurant, or one flight)
+- reservation: Booking a SINGLE travel item (one hotel, one restaurant, or one flight)
   Examples: "book a hotel", "reserve a restaurant", "book a flight", "I need a hotel in NYC"
   
-- trip_booking: Do not route to this
+- trip_booking: Booking a COMPLETE TRIP with multiple items (flight + hotel + restaurant)
+  Examples: "plan a trip to Paris", "book my vacation to Hawaii", "I need everything for my trip"
   
-- email_summarizer: Email-related tasks
-  Examples: "summarize my emails", "categorize my inbox"
+- qa: Travel-related questions, information, and recommendations
+  Examples: "what's the weather in Paris", "best time to visit Tokyo", "tell me about Rome", "travel tips for Italy"
   
-- qa: General questions and answers
-  Examples: "what is the weather", "how does photosynthesis work", "tell me about AI"
+- fallback: NON-TRAVEL questions (math, science, general knowledge, sports, entertainment, coding, etc.)
+  Examples: "what's 2+2", "who won the Super Bowl", "write me a poem", "how does photosynthesis work", "help me code"
 
 User request: {user_input}
 
-Respond with ONLY the category name: reservation, trip_booking, email_summarizer, or qa
+IMPORTANT: Only classify as qa if the question is SPECIFICALLY about travel/destinations/weather/travel tips.
+For ANY non-travel topic, classify as fallback.
+
+Respond with ONLY the category name: reservation, trip_booking, qa, or fallback
 """
         
         try:
@@ -44,16 +49,15 @@ Respond with ONLY the category name: reservation, trip_booking, email_summarizer
             
             # Validate the intent
             if intent not in self.agents:
-                # Default to reservation for booking-related queries
-                if any(word in user_input.lower() for word in ['hotel', 'flight', 'restaurant', 'book', 'reserve', 'reservation']):
+                # Default to fallback for unclear queries
+                if any(word in user_input.lower() for word in ['hotel', 'flight', 'restaurant', 'book', 'reserve', 'reservation', 'trip', 'travel']):
                     return "reservation"
-                # Default to QA for everything else
-                return "qa"
+                return "fallback"
             
             return intent
         except Exception as e:
             print(f"Error classifying intent: {e}")
-            return "qa"  # Default to QA agent
+            return "fallback"  # Default to fallback on errors
     
     def route(self, user_input: str, current_agent: str = None) -> Dict[str, Any]: # type: ignore
         """Route user input to appropriate agent and return response"""

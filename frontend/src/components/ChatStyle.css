@@ -1,0 +1,18 @@
+.chat-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
