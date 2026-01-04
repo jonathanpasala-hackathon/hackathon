@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Chat from "./components/Chat";
-import { processMessage } from "./services/api";
+import { processMessage, clearConversation } from "./services/api";
 
 function App() {
   const [input, setInput] = useState("");
@@ -55,12 +55,32 @@ function App() {
     }
   };
 
+  const handleClearConversation = async () => {
+    try {
+      await clearConversation();
+      setMessages([{
+        text: "Hello! How can I help you today?",
+        sender: "assistant",
+        agent: null
+      }]);
+      setStatus("Conversation cleared");
+      setStatusType("success");
+      setTimeout(() => setStatus(""), 2000);
+    } catch (err) {
+      console.error("Error clearing conversation:", err);
+      setStatus("Failed to clear conversation");
+      setStatusType("error");
+      setTimeout(() => setStatus(""), 2000);
+    }
+  };
+
   return (
     <Chat
       messages={messages}
       input={input}
       setInput={setInput}
       onSubmit={handleSubmit}
+      onClear={handleClearConversation}
       loading={loading}
       status={status}
       statusType={statusType}
