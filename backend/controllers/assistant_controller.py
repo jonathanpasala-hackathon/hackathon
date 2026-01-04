@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 
 class AssistantController:
-    """Main controller for the personal assistant"""
+    """Main controller for the travel assistant"""
     
     def __init__(self):
         self.router = AgentRouter()
@@ -80,5 +80,6 @@ class AssistantController:
         return {
             "qa": "Travel Q&A - Ask about destinations, weather, travel tips, and recommendations!",
             "reservation": "Individual Reservations - Book hotels, restaurants, or flights one at a time",
-            "trip_booking": "Complete Trip Planning - Book entire trips with flights, hotels, and dining"
+            "trip_booking": "Complete Trip Planning - Book entire trips with flights, hotels, and dining",
+            "fallback": "Polite Redirect - Handles non-travel questions with friendly guidance"
         }
