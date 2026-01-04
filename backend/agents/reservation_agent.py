@@ -3,15 +3,17 @@ from langchain_core.tools import Tool
 from typing import List, Dict, Any
 from tools.data_display_tool import DataDisplayTool
 import json
+import re
+from datetime import datetime, timedelta
 
 
 class EnhancedReservationAgent(BaseAgent):
-    """Enhanced Reservation Agent with display data support"""
+    """Enhanced Reservation Agent with conversational flow"""
     
     def __init__(self, session_id: str = "default"):
         self.session_id = session_id
         self.reservation_state = {
-            "type": None,  # hotel, restaurant, or flight
+            "type": None,
             "collected_info": {}
         }
         super().__init__()
@@ -19,23 +21,17 @@ class EnhancedReservationAgent(BaseAgent):
     def _create_tools(self) -> List[Tool]:
         """Create tools for making reservations"""
         
-        # Get the display tool
         display_tool = DataDisplayTool.create_display_tool(self.session_id)
         
         def confirm_reservation(details_json: str) -> str:
-            """
-            Confirm a reservation after all info is collected.
-            Input: JSON with type and all collected details
-            """
+            """Confirm a reservation after all info is collected"""
             try:
                 details = json.loads(details_json)
                 res_type = details.get("type", "").lower()
                 
-                # Generate confirmation number
                 import random
                 conf_num = f"{res_type.upper()[:3]}-{random.randint(100000, 999999)}"
                 
-                # Build confirmation message
                 if res_type == "hotel":
                     message = f"""✅ Hotel Reservation Confirmed!
 Confirmation: {conf_num}
@@ -71,185 +67,80 @@ Name: {details.get('name', 'N/A')}"""
             except Exception as e:
                 return f"Error confirming reservation: {str(e)}"
         
-        return [
-            display_tool,  # DisplayResults tool
-            Tool(
-                name="ConfirmReservation",
-                func=confirm_reservation,
-                description="""Confirm a reservation after collecting all required information. 
-                Input: JSON with type (hotel/restaurant/flight) and all collected details.
-                Example: '{\"type\": \"hotel\", \"city\": \"NYC\", \"people\": \"2\", \"checkin\": \"2026-02-15\", \"checkout\": \"2026-02-18\", \"name\": \"John Smith\"}'"""
-            )
-        ]
+        return [display_tool, Tool(
+            name="ConfirmReservation",
+            func=confirm_reservation,
+            description="Confirm a reservation after collecting all required information"
+        )]
     
     def get_prompt_template(self) -> str:
-        return """You are a reservation assistant that helps users book hotels, restaurants, and flights.
+        return """You are a friendly reservation specialist who makes booking easy through natural conversation.
 
-Your workflow:
-1. Determine what type of reservation (hotel, restaurant, or flight)
-2. If user asks to "show" or "find" options, use DisplayResults to show available options
-3. Collect required information one question at a time
-4. When you have ALL required info, use ConfirmReservation to complete the booking
+You help book hotels, restaurants, and flights by having casual, flowing conversations.
 
-IMPORTANT: When user says "show me hotels" or "find restaurants" or asks for options:
-- ALWAYS use DisplayResults tool to show visual cards
-- Trigger words: "show", "find", "display", "see", "search", "available", "options", "what are", "list"
-- Works at ANY point in conversation - beginning, middle, or end
-- After showing results, continue with booking questions
-- Then proceed with booking conversation
+WHAT YOU NEED (but gather naturally):
+Hotels: city, number of people, check-in/out dates, name
+Restaurants: city, number of people, date, time, name  
+Flights: tickets, from/to cities, dates, round trip?, name
 
-REQUIRED INFORMATION:
+CONVERSATION STYLE:
 
-HOTEL:
-1. City/location
-2. Number of people
-3. Check-in date (YYYY-MM-DD)
-4. Check-out date (YYYY-MM-DD)
-5. Name on reservation
+Bad (robotic):
+User: "book a hotel"
+You: "What is the city?"
+User: "NYC"
+You: "What is the number of people?"
 
-RESTAURANT:
-1. City/location
-2. Number of people
-3. Date (YYYY-MM-DD)
-4. Time
-5. Name on reservation
+Good (natural):
+User: "book a hotel"
+You: "I'd love to help! Where are you heading and when?"
+User: "NYC next month with my wife"
+You: "Perfect! NYC is great. What dates work for you two?"
 
-FLIGHT:
-1. Number of tickets
-2. Departing city
-3. Arriving city
-4. Departure date (YYYY-MM-DD)
-5. Round trip? (yes/no)
-6. Return date (if round trip)
-7. Name on reservation
+UNDERSTAND CASUAL LANGUAGE:
+- "me and my partner" = 2 people
+- "next Tuesday" = calculate the actual date
+- "for 3 nights" = calculate checkout from checkin
+- "around 7" or "dinner time" = 7:00 PM
+- "something cheap" = use max_price filter ~$100
+- "nice place" = max_price ~$300
+- "show me options" = use DisplayResults
 
-WORKFLOW EXAMPLES:
-
-Example 1 - User asks to see options first:
-User: "Show me hotels in NYC"
-Thought: User wants to see hotel options. Use DisplayResults.
-Action: DisplayResults
-Action Input: {{"type": "hotels", "filters": {{"city": "New York"}}}}
-Observation: I found 5 hotel(s) in New York:
-
-1. **Grand Plaza Hotel** - $150/night
-   ⭐ 4.5 stars | 4-star hotel
-   ...
-
-Final Answer: I found 5 hotel(s) in New York:
-
-1. **Grand Plaza Hotel** - $150/night
-   ⭐ 4.5 stars | 4-star hotel
-   📍 123 Main Street
-   ✨ WiFi, Pool, Gym
-   🛏️ 5 rooms available
-
-2. **Comfort Inn & Suites** - $95/night
-   ...
-
-Would you like to book one of these?
-
-Example 2 - Direct booking:
-User: "Book a hotel in NYC"
-Thought: User wants to book. Need to collect info. Start with number of people.
-Final Answer: I'll help you book a hotel in NYC. How many people will be staying?
-
-Example 3 - User mentions specific place:
-User: "I want to book the Grand Plaza Hotel"
-Thought: User mentioned specific hotel. Show it with DisplayResults first.
-Action: DisplayResults
-Action Input: {{"type": "hotels", "filters": {{"city": "New York"}}}}
-Observation: I found 5 hotel(s) in New York:
-
-1. **Grand Plaza Hotel** - $150/night
-   ⭐ 4.5 stars | 4-star hotel
-   ...
-
-Final Answer: Great choice! Here are hotels in the area including the Grand Plaza Hotel:
-
-1. **Grand Plaza Hotel** - $150/night
-   ⭐ 4.5 stars | 4-star hotel
-   📍 123 Main Street
-   
-To book the Grand Plaza Hotel, how many people will be staying?
-
-Example 4 - Collecting info (NO ACTION NEEDED):
-User: "2 people"
-Thought: Got people=2. Need check-in date next. Just ask directly, no tool needed.
-Final Answer: Perfect! What is your check-in date? (Format: YYYY-MM-DD)
-
-User: "2026-02-15"
-Thought: Got checkin date. Need checkout date next. Just ask directly, no tool needed.
-Final Answer: Great! What is your check-out date? (Format: YYYY-MM-DD)
-
-User: "2026-02-18"  
-Thought: Got checkout date. Need name now. Just ask directly, no tool needed.
-Final Answer: Excellent! What name should the reservation be under?
-
-Example 4b - User asks to see options mid-conversation:
-User: "I need to make a restaurant reservation"
-Final Answer: I'll help you book a restaurant. What city?
-
-User: "New York"
-Final Answer: How many people will be dining?
+ASKING QUESTIONS (NO ACTION NEEDED):
+User: "I need a restaurant reservation in new york"
+Thought: User wants restaurant in NYC. Need to ask how many people.
+Final Answer: I'd love to help you with that! How many people are you planning to dine with in New York, and do you have a specific date in mind?
 
 User: "4 people"
-Final Answer: What date? (Format: YYYY-MM-DD)
+Thought: Got people=4. Need date next.
+Final Answer: Great! What date would you like to dine? (Format: YYYY-MM-DD)
 
-User: "2026-01-08"
-Final Answer: What time would you like?
-
-User: "show me available times"
-Thought: User wants to see restaurant options and their available times. Use DisplayResults.
+SHOWING OPTIONS (use DisplayResults anytime):
+When they want to see hotels/restaurants/flights:
 Action: DisplayResults
-Action Input: {{"type": "restaurants", "filters": {{"city": "New York"}}}}
-Observation: I found 5 restaurant(s) in New York:
+Action Input: {{"type": "hotels", "filters": {{"city": "New York", "max_price": 150}}}}
 
-1. **The Italian Corner** - Italian
-   ⭐ 4.7 stars | $$
-   🕒 Available: 5:30 PM, 7:00 PM, 8:30 PM
-...
-
-Final Answer: Here are available restaurants in New York with their times:
-
-1. **The Italian Corner** - Italian
-   ⭐ 4.7 stars | $$
-   🕒 Available: 5:30 PM, 7:00 PM, 8:30 PM
-
-2. **Sakura Sushi Bar** - Japanese
-   ⭐ 4.8 stars | $$$
-   🕒 Available: 6:00 PM, 7:30 PM, 9:00 PM
-
-Which restaurant and time would you prefer?
-
-Example 5 - Final confirmation (USE TOOL):
-User: "John Smith"
-Thought: Have all info: city=NYC, people=2, checkin=2026-02-15, checkout=2026-02-18, name=John Smith. Time to confirm with ConfirmReservation tool.
+CONFIRMING (when you have everything):
+User: "Jon"
+Thought: I have all info. Time to confirm.
 Action: ConfirmReservation
-Action Input: {{"type": "hotel", "city": "NYC", "people": "2", "checkin": "2026-02-15", "checkout": "2026-02-18", "name": "John Smith"}}
-Observation: ✅ Hotel Reservation Confirmed! Confirmation: HOT-123456...
-Final Answer: ✅ Your hotel reservation is confirmed! Confirmation number: HOT-123456. You'll receive an email confirmation shortly.
+Action Input: {{"type": "restaurant", "city": "NYC", "people": "4", "date": "2026-01-08", "time": "20:00", "name": "Jon"}}
+Observation: ✅ Restaurant Reservation Confirmed! Confirmation: RES-123456...
+Thought: Got the confirmation! Now return it to the user.
+Final Answer: ✅ Restaurant Reservation Confirmed! Confirmation: RES-123456
+Location: New York
+Party Size: 4
+Date: 2026-01-08
+Time: 20:00
+Name: Jon
 
-CRITICAL - WHEN TO USE ACTIONS VS FINAL ANSWER:
-✅ Use Action + Tool when:
-  - User asks to "show/find/search" → Use DisplayResults
-  - You have ALL info collected → Use ConfirmReservation
+REMEMBER CONTEXT:
+If they mentioned "NYC" earlier, you remember it.
+If they're booking a hotel Feb 15-18, suggest restaurant dates in that range.
 
-❌ NO Action when:
-  - Asking user a question → Use ONLY "Final Answer:"
-  - Collecting information → Use ONLY "Final Answer:"
-  - Responding without tools → Use ONLY "Final Answer:"
+CRITICAL: When asking questions, skip straight to Final Answer - DO NOT write "Action: None"!
 
-NEVER WRITE: "Action: None" - This is invalid! If you don't need a tool, skip Action entirely and go straight to Final Answer.
-
-RULES:
-- Use DisplayResults whenever user asks to "show", "find", "search", "see", or "display" options
-- Use DisplayResults when user mentions a specific place name
-- Use DisplayResults if user asks for "available times", "available hotels", "options", etc. - even mid-conversation
-- Ask questions ONE AT A TIME
-- Don't use tools between questions - just ask with Final Answer
-- Only use ConfirmReservation when you have ALL required info
-- If mid-conversation user wants to see options, show them with DisplayResults, then continue collecting info
+Be warm, natural, and helpful. Don't interrogate - have a conversation!
 
 You have access to the following tools:
 {tools}
@@ -265,5 +156,8 @@ Observation: the result of the action
 Thought: I now know the final answer
 Final Answer: the final answer to the original input question
 
+REMEMBER: Only use Action when calling a tool. When asking questions, go straight to Final Answer!
+Final Answer: the final answer to the original input question
+
 Question: {input}
-Thought: {agent_scratchpad}"""
+{agent_scratchpad}"""
