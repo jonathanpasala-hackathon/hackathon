@@ -25,26 +25,26 @@ export default function Home() {
 
     return (
         <div className="app-row">
-            <Menu open={open} openMenu={openMenu} 
-                <div className="home-page">
-                    <div className="left-panel"><Chat /></div>
-                    <div className="right-panel">
-                        <CalendarComponent
-                            selectedDate={selectedDate}
-                            setSelectedDate={setSelectedDate}
-                            events={events}
-                        />
-                        <MapComponent
-                            eventMarkers={eventMarkers}
-                            onLocationSelect={setSelectedCoords}
-                        />
-                        {selectedCoords && (
-                            <p>
-                                Selected coordinates: <strong>Lat:</strong> {selectedCoords.lat.toFixed(5)}, <strong>Lng:</strong> {selectedCoords.lng.toFixed(5)}
-                            </p>
-                        )}
-                    </div>
+            <Menu open={open} openMenu={openMenu}/>
+            <div className="home-page">
+                <div className="left-panel"><Chat /></div>
+                <div className="right-panel">
+                    <CalendarComponent
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        events={events}
+                    />
+                    <MapComponent
+                        eventMarkers={eventMarkers}
+                        onLocationSelect={setSelectedCoords}
+                    />
+                    {selectedCoords && (
+                        <p>
+                            Selected coordinates: <strong>Lat:</strong> {selectedCoords.lat.toFixed(5)}, <strong>Lng:</strong> {selectedCoords.lng.toFixed(5)}
+                        </p>
+                    )}
                 </div>
+            </div>
         </div>
     );
 }
