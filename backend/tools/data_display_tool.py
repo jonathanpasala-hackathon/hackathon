@@ -132,7 +132,8 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Pool", "Gym", "Restaurant", "Spa"],
             "image_url": "https://example.com/hotel1.jpg",
             "available_rooms": 5,
-            "description": "Luxury hotel in the heart of downtown"
+            "description": "Luxury hotel in the heart of downtown",
+            "coordinates": [40.7128, 74.0060]
         },
         {
             "id": "hotel_2",
@@ -145,7 +146,8 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Parking", "Breakfast", "Gym"],
             "image_url": "https://example.com/hotel2.jpg",
             "available_rooms": 12,
-            "description": "Comfortable and affordable accommodations"
+            "description": "Comfortable and affordable accommodations",
+            "coordinates": [40.7128, 64.0060]
         },
         {
             "id": "hotel_3",
@@ -158,7 +160,8 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Pool", "Spa", "Casino", "Beach Access", "Fine Dining"],
             "image_url": "https://example.com/hotel3.jpg",
             "available_rooms": 3,
-            "description": "5-star resort with world-class amenities"
+            "description": "5-star resort with world-class amenities",
+            "coordinates": [40.7128, 84.0060]
         },
         {
             "id": "hotel_4",
@@ -171,7 +174,8 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Parking"],
             "image_url": "https://example.com/hotel4.jpg",
             "available_rooms": 20,
-            "description": "Clean and simple budget accommodations"
+            "description": "Clean and simple budget accommodations",
+            "coordinates": [40.7128, 94.0060]
         },
         {
             "id": "hotel_5",
@@ -184,7 +188,8 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Business Center", "Meeting Rooms", "Gym"],
             "image_url": "https://example.com/hotel5.jpg",
             "available_rooms": 8,
-            "description": "Perfect for business travelers"
+            "description": "Perfect for business travelers",
+            "coordinates": [40.7128, 104.0060]
         }
     ]
     
@@ -215,7 +220,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "phone": "(555) 123-4567",
             "image_url": "https://example.com/restaurant1.jpg",
             "available_times": ["5:30 PM", "7:00 PM", "8:30 PM"],
-            "specialties": ["Handmade Pasta", "Wood-fired Pizza", "Tiramisu"]
+            "specialties": ["Handmade Pasta", "Wood-fired Pizza", "Tiramisu"],
+            "coordinates": [50.7128, 74.0060]
         },
         {
             "id": "rest_2",
@@ -228,7 +234,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "phone": "(555) 234-5678",
             "image_url": "https://example.com/restaurant2.jpg",
             "available_times": ["6:00 PM", "7:30 PM", "9:00 PM"],
-            "specialties": ["Omakase", "Sashimi", "Sake Selection"]
+            "specialties": ["Omakase", "Sashimi", "Sake Selection"],
+            "coordinates": [60.7128, 74.0060]
         },
         {
             "id": "rest_3",
@@ -241,7 +248,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "phone": "(555) 345-6789",
             "image_url": "https://example.com/restaurant3.jpg",
             "available_times": ["5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"],
-            "specialties": ["Signature Burger", "Craft Beer", "Milkshakes"]
+            "specialties": ["Signature Burger", "Craft Beer", "Milkshakes"],
+            "coordinates": [70.7128, 74.0060]
         },
         {
             "id": "rest_4",
@@ -254,7 +262,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "phone": "(555) 456-7890",
             "image_url": "https://example.com/restaurant4.jpg",
             "available_times": ["7:00 PM", "8:30 PM"],
-            "specialties": ["Coq au Vin", "Crème Brûlée", "Wine Pairing"]
+            "specialties": ["Coq au Vin", "Crème Brûlée", "Wine Pairing"],
+            "coordinates": [80.7128, 74.0060]
         },
         {
             "id": "rest_5",
@@ -267,7 +276,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "phone": "(555) 567-8901",
             "image_url": "https://example.com/restaurant5.jpg",
             "available_times": ["6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM"],
-            "specialties": ["Butter Chicken", "Biryani", "Naan Bread"]
+            "specialties": ["Butter Chicken", "Biryani", "Naan Bread"],
+            "coordinates": [90.7128, 74.0060]
         }
     ]
     
