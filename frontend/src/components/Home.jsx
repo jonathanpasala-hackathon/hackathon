@@ -17,14 +17,6 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [displayData, setDisplayData] = useState([])
 
-    useEffect(() => {
-        console.log(displayData)
-    }, [displayData])
-    
-    useEffect(() => {
-    console.log("Chat mounted");
-    return () => console.log("Chat unmounted");
-    }, []);
     
     const addMessage = (text, sender, agent = null) => {
         setMessages((prev) => [
@@ -135,6 +127,7 @@ export default function Home() {
                     <MapComponent
                         eventMarkers={eventMarkers}
                         onLocationSelect={setSelectedCoords}
+                        data = { displayData }
                     />
                     {selectedCoords && (
                         <p>
