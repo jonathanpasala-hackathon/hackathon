@@ -4,6 +4,8 @@ import StatusBar from "./StatusBar";
 import "./ChatStyle.css";
 import { useState } from "react";
 import { processMessage } from "../services/api";
+import { useEffect } from "react";
+
 
 export default function Chat() {
   const [input, setInput] = useState("");
@@ -11,6 +13,14 @@ export default function Chat() {
   const [status, setStatus] = useState("");
   const [statusType, setStatusType] = useState("");
   const [loading, setLoading] = useState(false);
+
+  console.log("messages length:", messages.length);
+
+  useEffect(() => {
+  console.log("Chat mounted");
+  return () => console.log("Chat unmounted");
+}, []);
+
 
   const addMessage = (text, sender, agent = null) => {
     setMessages((prev) => [
@@ -60,7 +70,10 @@ export default function Chat() {
 
   return (
     <div className="chat-app">
+      <div className="chat-header"> {/* header div*/}
         <h1>Chat Assistant</h1>
+      </div>
+
       <MessageList messages={messages} />
       <ChatInput
         input={input}

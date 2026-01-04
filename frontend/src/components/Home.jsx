@@ -8,19 +8,16 @@ export default function Home(props) {
     const openMenu = () => setOpen(!open);
 
     return (
-        <div className="app-row">
-            <Menu
-                open = {open}
-                openMenu = {openMenu}
-            />
-            {!open && (
-                <div className="home-page">
-                    <LeftPanel/>
-                    <RightPanel/>
-                </div>
-            )}
-        </div>
-    );
+    <div className="app-row">
+      <Menu open={open} openMenu={openMenu} />
+
+      {/* ✅ ALWAYS render the page so Chat never unmounts */}
+      <div className="home-page">
+        <LeftPanel />
+        <RightPanel />
+      </div>
+    </div>
+  );
 }
 
 function LeftPanel() {
