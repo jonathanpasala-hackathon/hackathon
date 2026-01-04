@@ -95,11 +95,8 @@ class DataDisplayTool:
                 # Create chat response
                 response = create_chat_response(data_type, data, filters)
                 
-                return json.dumps({
-                    "chat_response": response,
-                    "data_sent_to_frontend": True,
-                    "item_count": len(data)
-                })
+                # Return the chat response directly so agent can use it
+                return response
                 
             except Exception as e:
                 return f"Error displaying results: {str(e)}"
@@ -110,7 +107,17 @@ class DataDisplayTool:
             description="""Display hotels, restaurants, or flights to the user with visual cards in the frontend.
             Use this when user asks to 'show', 'display', 'find', or 'search for' hotels/restaurants/flights.
             Input must be JSON with type (hotels/restaurants/flights) and filters (search criteria).
-            Example: '{\"type\": \"hotels\", \"filters\": {\"city\": \"New York\", \"max_price\": 150}}'"""
+            
+            FILTER EXAMPLES:
+            - Hotels: {{"type": "hotels", "filters": {{"city": "New York", "max_price": 150}}}}
+            - Restaurants (cheap): {{"type": "restaurants", "filters": {{"city": "New York", "max_price_range": 1}}}}
+            - Restaurants (moderate): {{"type": "restaurants", "filters": {{"city": "New York", "max_price_range": 2}}}}
+            - Restaurants (expensive): {{"type": "restaurants", "filters": {{"city": "New York", "max_price_range": 3}}}}
+            - Restaurants (luxury): {{"type": "restaurants", "filters": {{"city": "New York", "max_price_range": 4}}}}
+            - Restaurants by cuisine: {{"type": "restaurants", "filters": {{"city": "New York", "cuisine": "Italian"}}}}
+            - Flights: {{"type": "flights", "filters": {{"from": "Boston", "to": "New York", "max_price": 300}}}}
+            
+            PRICE RANGE for restaurants: 1=cheap($), 2=moderate($$), 3=expensive($$$), 4=luxury($$$$)"""
         )
 
 
@@ -132,8 +139,7 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Pool", "Gym", "Restaurant", "Spa"],
             "image_url": "https://example.com/hotel1.jpg",
             "available_rooms": 5,
-            "description": "Luxury hotel in the heart of downtown",
-            "coordinates": [40.7128, 74.0060]
+            "description": "Luxury hotel in the heart of downtown"
         },
         {
             "id": "hotel_2",
@@ -146,8 +152,7 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Parking", "Breakfast", "Gym"],
             "image_url": "https://example.com/hotel2.jpg",
             "available_rooms": 12,
-            "description": "Comfortable and affordable accommodations",
-            "coordinates": [40.7128, 64.0060]
+            "description": "Comfortable and affordable accommodations"
         },
         {
             "id": "hotel_3",
@@ -160,8 +165,7 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Pool", "Spa", "Casino", "Beach Access", "Fine Dining"],
             "image_url": "https://example.com/hotel3.jpg",
             "available_rooms": 3,
-            "description": "5-star resort with world-class amenities",
-            "coordinates": [40.7128, 84.0060]
+            "description": "5-star resort with world-class amenities"
         },
         {
             "id": "hotel_4",
@@ -174,8 +178,7 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Parking"],
             "image_url": "https://example.com/hotel4.jpg",
             "available_rooms": 20,
-            "description": "Clean and simple budget accommodations",
-            "coordinates": [40.7128, 94.0060]
+            "description": "Clean and simple budget accommodations"
         },
         {
             "id": "hotel_5",
@@ -188,8 +191,7 @@ def generate_hotel_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "amenities": ["WiFi", "Business Center", "Meeting Rooms", "Gym"],
             "image_url": "https://example.com/hotel5.jpg",
             "available_rooms": 8,
-            "description": "Perfect for business travelers",
-            "coordinates": [40.7128, 104.0060]
+            "description": "Perfect for business travelers"
         }
     ]
     
@@ -206,7 +208,12 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Generate dummy restaurant data based on filters"""
     city = filters.get("city", "New York")
     cuisine = filters.get("cuisine", None)
-    max_price = filters.get("max_price_range", 4)  # 1-4 scale
+    max_price_range = filters.get("max_price_range", 4)  # 1-4 scale
+    
+    # Handle different price filter formats
+    if isinstance(max_price_range, str):
+        # Convert "$" to 1, "$$" to 2, etc.
+        max_price_range = len(max_price_range) if max_price_range.startswith("$") else 4
     
     all_restaurants = [
         {
@@ -221,7 +228,7 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant1.jpg",
             "available_times": ["5:30 PM", "7:00 PM", "8:30 PM"],
             "specialties": ["Handmade Pasta", "Wood-fired Pizza", "Tiramisu"],
-            "coordinates": [50.7128, 74.0060]
+            "coordinates": [40.7589, -73.9851]
         },
         {
             "id": "rest_2",
@@ -235,7 +242,7 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant2.jpg",
             "available_times": ["6:00 PM", "7:30 PM", "9:00 PM"],
             "specialties": ["Omakase", "Sashimi", "Sake Selection"],
-            "coordinates": [60.7128, 74.0060]
+            "coordinates": [40.7614, -73.9776]
         },
         {
             "id": "rest_3",
@@ -249,7 +256,7 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant3.jpg",
             "available_times": ["5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"],
             "specialties": ["Signature Burger", "Craft Beer", "Milkshakes"],
-            "coordinates": [70.7128, 74.0060]
+            "coordinates": [40.7580, -73.9855]
         },
         {
             "id": "rest_4",
@@ -263,7 +270,7 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant4.jpg",
             "available_times": ["7:00 PM", "8:30 PM"],
             "specialties": ["Coq au Vin", "Crème Brûlée", "Wine Pairing"],
-            "coordinates": [80.7128, 74.0060]
+            "coordinates": [40.7505, -73.9934]
         },
         {
             "id": "rest_5",
@@ -277,7 +284,7 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
             "image_url": "https://example.com/restaurant5.jpg",
             "available_times": ["6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM"],
             "specialties": ["Butter Chicken", "Biryani", "Naan Bread"],
-            "coordinates": [90.7128, 74.0060]
+            "coordinates": [40.7484, -73.9857]
         }
     ]
     
@@ -285,8 +292,8 @@ def generate_restaurant_data(filters: Dict[str, Any]) -> List[Dict[str, Any]]:
     filtered = all_restaurants
     if cuisine:
         filtered = [r for r in filtered if r["cuisine"].lower() == cuisine.lower()]
-    if max_price:
-        filtered = [r for r in filtered if r["price_range"] <= max_price]
+    if max_price_range:
+        filtered = [r for r in filtered if r["price_range"] <= max_price_range]
     
     return filtered
 
@@ -365,12 +372,13 @@ def create_chat_response(data_type: str, data: List[Dict[str, Any]], filters: Di
         response = f"I found {count} hotel(s) in {city}"
         if max_price != "any price":
             response += f" under ${max_price} per night"
-        response += f". Check out the options below! "
+        response += ":\n\n"
         
-        # Add top picks
-        if count > 0:
-            top = sorted(data, key=lambda x: x["rating"], reverse=True)[0]
-            response += f"Top rated: {top['name']} ({top['rating']} stars) at ${top['price_per_night']}/night."
+        # List all hotels
+        for i, hotel in enumerate(data, 1):
+            response += f"{i}. **{hotel['name']}** - ${hotel['price_per_night']}/night\n"
+            response += f"   ⭐ {hotel['rating']} stars | {hotel['stars']}-star hotel\n"
+            response += f"   🛏️ {hotel['available_rooms']} rooms available\n\n"
     
     elif data_type == "restaurants":
         city = filters.get("city", "the area")
@@ -378,21 +386,25 @@ def create_chat_response(data_type: str, data: List[Dict[str, Any]], filters: Di
         response = f"I found {count} restaurant(s)"
         if cuisine:
             response += f" serving {cuisine} cuisine"
-        response += f" in {city}. Take a look below! "
+        response += f" in {city}:\n\n"
         
-        if count > 0:
-            top = sorted(data, key=lambda x: x["rating"], reverse=True)[0]
-            response += f"Highest rated: {top['name']} ({top['rating']} stars)."
+        # List all restaurants
+        for i, rest in enumerate(data, 1):
+            price_symbols = "$" * rest['price_range']
+            response += f"{i}. **{rest['name']}** - {rest['cuisine']}\n"
+            response += f"   🕒 Available: {', '.join(rest['available_times'][:3])}\n\n"
     
     elif data_type == "flights":
         from_city = filters.get("from", "your departure city")
         to_city = filters.get("to", "your destination")
-        response = f"I found {count} flight(s) from {from_city} to {to_city}. "
+        response = f"I found {count} flight(s) from {from_city} to {to_city}:\n\n"
         
-        if count > 0:
-            cheapest = min(data, key=lambda x: x["price"])
-            fastest = min(data, key=lambda x: x["duration"])
-            response += f"Cheapest: ${cheapest['price']} ({cheapest['airline']}). "
-            response += f"Fastest: {fastest['duration']} ({fastest['airline']})."
+        # List all flights
+        for i, flight in enumerate(data, 1):
+            stops_text = "Nonstop" if flight['stops'] == 0 else f"{flight['stops']} stop(s)"
+            response += f"{i}. **{flight['airline']}** {flight['flight_number']} - ${flight['price']}\n"
+            response += f"   🛫 Departs: {flight['departure_time']} → Arrives: {flight['arrival_time']}\n"
+            response += f"   ⏱️ Duration: {flight['duration']} | {stops_text}\n"
+            response += f"   💺 {flight['class']} | {flight['available_seats']} seats available\n\n"
     
-    return response
+    return response.strip()
