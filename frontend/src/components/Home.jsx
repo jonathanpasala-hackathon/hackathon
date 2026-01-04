@@ -3,7 +3,7 @@ import Chat from "./Chat";
 import MapComponent from "./Map";
 import Menu from "./Menu";
 import { useState, useEffect } from "react";
-import { processMessage } from "../services/api";
+import { processMessage, clearConversation } from "../services/api";
 import "./HomeStyle.css";
 
 export default function Home() {
@@ -78,6 +78,25 @@ export default function Home() {
         }
     };    
 
+    const handleClearConversation = async () => {
+    try {
+        await clearConversation();
+        setMessages([{
+        text: "Hello! How can I help you today?",
+        sender: "assistant",
+        agent: null
+        }]);
+        setStatus("Conversation cleared");
+        setStatusType("success");
+        setTimeout(() => setStatus(""), 2000);
+    } catch (err) {
+        console.error("Error clearing conversation:", err);
+        setStatus("Failed to clear conversation");
+        setStatusType("error");
+        setTimeout(() => setStatus(""), 2000);
+    }
+    };
+
     const openMenu = () => setOpen(!open);
 
     // All events with coordinates
@@ -101,6 +120,7 @@ export default function Home() {
                         input={input}
                         setInput={setInput}
                         handleSubmit={handleSubmit}
+                        handleClear={handleClearConversation}
                         status={status}
                         statusType={statusType}
                         loading={loading}

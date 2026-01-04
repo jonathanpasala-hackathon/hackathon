@@ -9,6 +9,7 @@ export default function Chat({
   input,
   setInput,
   handleSubmit,
+  handleClear,
   loading,
   status,
   statusType
@@ -18,6 +19,11 @@ export default function Chat({
     <div className="chat-app">
       <div className="chat-header"> {/* header div*/}
         <h1>Chat Assistant</h1>
+        <button
+          onClick={handleClear}
+        >
+          Clear
+        </button>
       </div>
 
       <MessageList messages={messages} />
