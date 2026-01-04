@@ -15,7 +15,7 @@ export default function Home() {
     const [status, setStatus] = useState("");
     const [statusType, setStatusType] = useState("");
     const [loading, setLoading] = useState(false);
-    const [displayData, setDisplayData] = useState([{}])
+    const [displayData, setDisplayData] = useState([])
 
     useEffect(() => {
         console.log(displayData)
@@ -34,7 +34,7 @@ export default function Home() {
     };
     const addDisplayData = (data) => {
         setDisplayData((prev) => [
-            ...prev, data
+            ...prev, ...data.filter(obj => obj && Object.keys(obj).length > 0)
         ])
     }
     
