@@ -9,9 +9,10 @@ from typing import Dict, Any
 class AgentRouter:
     """Routes user requests to the appropriate agent"""
     
-    def __init__(self):
+    def __init__(self, session_id: str = "default"):
+        self.session_id = session_id
         self.agents = {
-            "qa": QAAgent(),
+            "qa": QAAgent(session_id=session_id),
             "reservation": EnhancedReservationAgent(),
             "trip_booking": TripBookingAgent(),
             "fallback": FallbackAgent()

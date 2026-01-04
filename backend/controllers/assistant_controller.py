@@ -6,9 +6,15 @@ class AssistantController:
     """Main controller for the travel assistant"""
     
     def __init__(self):
-        self.router = AgentRouter()
-        # Store conversation history by session (in production, use proper session management)
+        # Store conversation history and routers by session
         self.conversations = {}
+        self.routers = {}  # Router per session to maintain session_id
+    
+    def _get_router(self, session_id: str) -> AgentRouter:
+        """Get or create router for session"""
+        if session_id not in self.routers:
+            self.routers[session_id] = AgentRouter(session_id=session_id)
+        return self.routers[session_id]
     
     def process_request(self, user_input: str, session_id: str = "default") -> Dict[str, Any]:
         """Process user request and return formatted response"""
@@ -35,8 +41,11 @@ class AssistantController:
             # Build context from conversation history
             context = self._build_context(conversation["history"], user_input)
             
+            # Get router for this session
+            router = self._get_router(session_id)
+            
             # Route with context
-            result = self.router.route(context, conversation.get("current_agent"))
+            result = router.route(context, conversation.get("current_agent"))
             
             # Update conversation history
             conversation["history"].append({

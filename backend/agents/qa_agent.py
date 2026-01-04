@@ -1,10 +1,15 @@
 from agents.base_agent import BaseAgent
 from langchain_core.tools import Tool
 from typing import List
+from tools.data_display_tool import DataDisplayTool
 
 
 class QAAgent(BaseAgent):
     """Travel Question and Answer Agent"""
+    
+    def __init__(self, session_id: str = "default"):
+        self.session_id = session_id
+        super().__init__()
     
     def _create_tools(self) -> List[Tool]:
         """Create tools for travel Q&A"""
@@ -13,12 +18,16 @@ class QAAgent(BaseAgent):
             """Search knowledge base for travel information - placeholder for now"""
             return f"Searching for travel information about: {query}. This is a placeholder response."
         
+        # Get the display tool
+        display_tool = DataDisplayTool.create_display_tool(self.session_id)
+        
         return [
             Tool(
                 name="SearchKnowledge",
                 func=search_knowledge,
                 description="Search the travel knowledge base for information about destinations, weather, tips, and recommendations"
-            )
+            ),
+            display_tool  # Add the display tool
         ]
     
     def get_prompt_template(self) -> str:
@@ -33,7 +42,12 @@ Answer travel-related questions to the best of your ability. Provide helpful inf
 - Transportation options
 - General travel recommendations
 
-Use the available tools if needed to search for current information.
+IMPORTANT: When users ask to "show", "display", "find", or "search for" hotels, restaurants, or flights:
+- Use the DisplayResults tool to show visual cards with data
+- Provide filters based on what the user asked for (city, max_price, cuisine, etc.)
+- Example: User says "show me hotels in NYC under $150"
+  → Action: DisplayResults
+  → Action Input: {{"type": "hotels", "filters": {{"city": "New York", "max_price": 150}}}}
 
 You have access to the following tools:
 {tools}
