@@ -13,7 +13,7 @@ class AgentRouter:
         self.session_id = session_id
         self.agents = {
             "qa": QAAgent(session_id=session_id),
-            "reservation": EnhancedReservationAgent(),
+            "reservation": EnhancedReservationAgent(session_id=session_id),
             "trip_booking": TripBookingAgent(),
             "fallback": FallbackAgent()
         }
