@@ -25,12 +25,12 @@ export default function Menu({ open, openMenu }) {
                 onClick={openMenu}
                 type="button"
             >
-            <img src={x} alt="Close" />
-        </button>
-
+                <img src={x} alt="Close" />
+            </button>
         </div>
 
         <div className="menuBody">
+            <h className="menu-header">Description</h>
           <div className="agentBubble">
             <h4>Reservation & Booking</h4>
             <p>Finds restaurants/hotels and helps book reservations based on your preferences.</p>
