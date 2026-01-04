@@ -90,6 +90,42 @@ def get_agents():
     return jsonify(assistant.get_agent_info())
 
 
+@app.route('/health', methods=['GET'])
+def health():
+    """Health check endpoint"""
+    return jsonify({"status": "healthy"})
+
+latest_location = None
+
+@app.route("/coordinates", methods=["POST"])
+def receive_coordinates():
+    global latest_location
+    data = request.get_json()
+
+    lat = data.get("latitude")
+    lng = data.get("longitude")
+    name = data.get("hotel_name")
+
+    if lat is None or lng is None:
+        return jsonify({"error": "latitude and longitude required"}), 400
+
+    latest_location = {
+        "name": name,
+        "latitude": lat,
+        "longitude": lng
+    }
+
+    return jsonify({"status": "stored"}), 200
+
+
+@app.route("/coordinates", methods=["GET"])
+def get_coordinates():
+    if not latest_location:
+        return jsonify({"error": "No coordinates available"}), 404
+
+    return jsonify(latest_location), 200
+
+
 if __name__ == '__main__':
     print("=" * 60)
     print("AI Travel Assistant Server Starting...")

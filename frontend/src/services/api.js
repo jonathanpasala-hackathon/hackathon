@@ -11,3 +11,16 @@ export async function processMessage(input) {
 
   return res.json();
 }
+
+export async function getCoordinates() {
+  const res = await fetch("/coordinates", {
+    method: "GET",
+    headers: {"Content-Type": "application/json"}
+  })
+
+  if (!res.ok) {
+    throw new Error("Network error");
+  }
+
+  return res.json();
+}
