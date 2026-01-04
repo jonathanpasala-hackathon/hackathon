@@ -2,81 +2,13 @@ import CalendarComponent from "./Calendar";
 import Chat from "./Chat";
 import MapComponent from "./Map";
 import Menu from "./Menu";
-import { useState, useEffect } from "react";
-import { processMessage } from "../services/api";
+import { useState } from "react";
 import "./HomeStyle.css";
 
 export default function Home() {
     const [open, setOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedCoords, setSelectedCoords] = useState(null);
-    const [input, setInput] = useState("");
-    const [messages, setMessages] = useState([]);
-    const [status, setStatus] = useState("");
-    const [statusType, setStatusType] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [displayData, setDisplayData] = useState([])
-
-    useEffect(() => {
-        console.log(displayData)
-    }, [displayData])
-    
-    useEffect(() => {
-    console.log("Chat mounted");
-    return () => console.log("Chat unmounted");
-    }, []);
-    
-    const addMessage = (text, sender, agent = null) => {
-        setMessages((prev) => [
-        ...prev,
-        { text, sender, agent }
-        ]);
-    };
-    const addDisplayData = (data) => {
-        setDisplayData((prev) => [
-            ...prev, ...data.filter(obj => obj && Object.keys(obj).length > 0)
-        ])
-    }
-    
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
-    
-        addMessage(input, "user");
-        setInput("");
-        setLoading(true);
-        setStatus("Processing your request...");
-        setStatusType("loading");
-    
-        try {
-        const data = await processMessage(input);
-    
-        if (data.success) {
-            addMessage(data.response, "assistant", data.agent);
-            addDisplayData(data.display_data.data)
-            setStatus("Request completed successfully");
-            setStatusType("success");
-        } else {
-            addMessage(
-            `Error: ${data.error || "Unknown error occurred"}`,
-            "assistant"
-            );
-            setStatus("An error occurred");
-            setStatusType("error");
-        }
-        } catch (err) {
-        console.error(err);
-        addMessage(
-            "Sorry, there was an error processing your request.",
-            "assistant"
-        );
-        setStatus("Connection error");
-        setStatusType("error");
-        } finally {
-        setLoading(false);
-        setTimeout(() => setStatus(""), 10000);
-        }
-    };    
 
     const openMenu = () => setOpen(!open);
 
@@ -93,36 +25,28 @@ export default function Home() {
 
     return (
         <div className="app-row">
-            <Menu open={open} openMenu={openMenu}/>
-            <div className="home-page">
-                <div className="left-panel">
-                    <Chat 
-                        messages={messages}
-                        input={input}
-                        setInput={setInput}
-                        handleSubmit={handleSubmit}
-                        status={status}
-                        statusType={statusType}
-                        loading={loading}
-                    />
+            <Menu open={open} openMenu={openMenu} />
+            {!open && (
+                <div className="home-page">
+                    <div className="left-panel"><Chat /></div>
+                    <div className="right-panel">
+                        <CalendarComponent
+                            selectedDate={selectedDate}
+                            setSelectedDate={setSelectedDate}
+                            events={events}
+                        />
+                        <MapComponent
+                            eventMarkers={eventMarkers}
+                            onLocationSelect={setSelectedCoords}
+                        />
+                        {selectedCoords && (
+                            <p>
+                                Selected coordinates: <strong>Lat:</strong> {selectedCoords.lat.toFixed(5)}, <strong>Lng:</strong> {selectedCoords.lng.toFixed(5)}
+                            </p>
+                        )}
+                    </div>
                 </div>
-                <div className="right-panel">
-                    <CalendarComponent
-                        selectedDate={selectedDate}
-                        setSelectedDate={setSelectedDate}
-                        events={events}
-                    />
-                    <MapComponent
-                        eventMarkers={eventMarkers}
-                        onLocationSelect={setSelectedCoords}
-                    />
-                    {selectedCoords && (
-                        <p>
-                            Selected coordinates: <strong>Lat:</strong> {selectedCoords.lat.toFixed(5)}, <strong>Lng:</strong> {selectedCoords.lng.toFixed(5)}
-                        </p>
-                    )}
-                </div>
-            </div>
+            )}
         </div>
     );
 }
